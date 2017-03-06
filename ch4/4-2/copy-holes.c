@@ -1,3 +1,8 @@
+/*
+ * Write a program like cp, but create holes in target file
+ * if source file also has holes.
+ */
+
 #include <string.h>
 #include <sys/stat.h>
 #include <fcntl.h>

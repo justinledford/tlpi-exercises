@@ -1,3 +1,7 @@
+/*
+ * Implement tee using I/O system calls with an append argument.
+ */
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
