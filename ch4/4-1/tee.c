@@ -12,13 +12,14 @@
 
 int main(int argc, char *argv[])
 {
-    int opt, append, outputFd, openFlags;
+    int opt, append, *outputFds, openFlags, i;
     ssize_t n;
     mode_t filePerms;
     char buf[BUFSIZE];
     char usage[] = "%s [-a] FILE\n  -a\tappend to file\n";
 
-    if (argc < 2 || argc > 3)
+    /* parse arguments */
+    if (argc < 2)
         usageErr(usage, argv[0]);
 
     append = 0;
@@ -34,24 +35,35 @@ int main(int argc, char *argv[])
         }
     }
 
+    /* open files */
     openFlags = O_WRONLY | O_CREAT | (append ? O_APPEND : O_TRUNC);
     filePerms = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
-    outputFd = open(argv[argc-1], openFlags, filePerms);
-    if (outputFd == -1)
-        errExit("error opening %s", argv[1]);
+    outputFds = malloc(sizeof(int)*(argc-optind));
 
+    for (i = 0; i < argc-optind; i++) {
+        *(outputFds+i) = open(argv[optind+i], openFlags, filePerms);
+        if (*(outputFds+i) == -1)
+            errExit("error opening %s", argv[optind+i]);
+    }
+
+    /* write to files */
     while ((n = read(STDIN_FILENO, buf, BUFSIZE)) > 0) {
-        if (write(outputFd, buf, n) != n)
-            fatal("couldn't write whole buffer");
+        for (i = 0; i < argc-optind; i++)
+            if (write(*(outputFds+i), buf, n) != n)
+                fatal("couldn't write whole buffer to %s", argv[optind+i]);
         if (write(STDOUT_FILENO, buf, n) != n)
-            fatal("couldn't write whole buffer");
+            fatal("couldn't write whole buffer to stdout");
     }
 
     if (n == -1)
         errExit("read");
 
-    if (close(outputFd) == -1)
-        errExit("close");
+    /* clean up */
+    for (i = 0; i < argc-optind; i++)
+        if (close(*(outputFds+i)) == -1)
+            errExit("close");
+
+    free(outputFds);
 
     exit(EXIT_SUCCESS);
 }
