@@ -8,6 +8,11 @@
  * running with the flag on results in the file having a smaller
  * size than the other, this is because seek and write
  * are not called atomically, so some bytes were overwritten
+ *
+ * because of the separate calls to open, separate file descriptions
+ * were made with separate offsets. when one of the processes is
+ * interrupted between seek and write, then the next byte
+ * will be overwwritten.
  */
 
 #include <fcntl.h>
