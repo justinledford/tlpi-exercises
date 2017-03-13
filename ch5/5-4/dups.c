@@ -88,7 +88,7 @@ void test_mydup2(char *pathname)
 int main(int argc, char *argv[])
 {
     if (argc != 3)
-        usageErr("usage: %s f file2\n", argv[0]);
+        usageErr("%s function file\n", argv[0]);
 
     if (strcmp(argv[1], "mydup"))
         test_mydup(argv[2]);
