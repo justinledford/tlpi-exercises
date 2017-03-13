@@ -85,6 +85,9 @@ void test_mywritev(char *pathname)
 
 int main(int argc, char *argv[])
 {
+    if (argc != 3)
+        usageErr("%s function file\n", argv[0]);
+
     if (strcmp(argv[1], "readv") == 0)
         test_myreadv(argv[2]);
     else if (strcmp(argv[1], "writev") == 0)
